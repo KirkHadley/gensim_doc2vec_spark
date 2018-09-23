@@ -154,7 +154,7 @@ class DistDoc2VecFast:
 
         def simplify(k, params, corpus, locks):
             dset = params.zip(corpus).zip(locks) \
-                .map(lambda (pair, lockf): (pair[0], pair[1], lockf, k)) 
+                .map(lambda pair, lockf: (pair[0], pair[1], lockf, k)) 
             return dset
 
         for k in xrange(self.num_iterations):
@@ -173,12 +173,12 @@ class DistDoc2VecFast:
         bc_syn0_0.unpersist()
         bc_syn1neg_0.unpersist()
 
-        self.doctag_syn0 = params.map(lambda (_a, _b, dvecs): dvecs)
+        self.doctag_syn0 = params.map(lambda _a, _b, dvecs: dvecs)
             
         # kick start training
         self.doctag_syn0.count()
-        print "**** Train passes: %d ****" % train_passes.value
-        print "**** Train counts: %d ****" % trained_count.value
+        print("**** Train passes: %d ****" % train_passes.value)
+        print("**** Train counts: %d ****" % trained_count.value)
         corpus.unpersist()
         doctag_locks.unpersist()
         bc_model.unpersist()
@@ -233,7 +233,7 @@ class DistDoc2VecFast:
 
         def simplify(k, doctag_syn0, corpus, locks):
             dset = doctag_syn0.zip(corpus).zip(locks) \
-                .map(lambda (pair, lockf): (pair[0], pair[1], lockf, k)) 
+                .map(lambda pair, lockf: (pair[0], pair[1], lockf, k)) 
             return dset
 
         def reducer(dataset, k):
@@ -243,7 +243,7 @@ class DistDoc2VecFast:
         init_dataset = simplify(0, doctag_syn0, corpus, doctag_locks)
         dataset = reduce(reducer, xrange(1, self.num_iterations), init_dataset)
 
-        self.doctag_syn0 = dataset.map(lambda (docvecs, _1, _2, _3): docvecs) 
+        self.doctag_syn0 = dataset.map(lambda docvecs, _1, _2, _3: docvecs) 
 
     def train(self, corpus):
         if self.learn_words and self.learn_hidden:
