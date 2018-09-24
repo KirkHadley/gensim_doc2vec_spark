@@ -38,18 +38,15 @@ class DistDoc2VecFast:
         '''
         model = self.model
         model.corpus_count = corpus.count()
-        s = corpus   \
+        s = jcorpus  \
             .flatMap(lambda s: [(w, 1) for w in s])   \
             .reduceByKey(add)            \
-            .filter(lambda x: x[1] >= model.min_count)              \
-            .collect()
-            # .map(lambda x: (x[1], x[0]))              \
-            # .sortByKey(False)                         \
-            # .collect()
-
-        model.raw_vocab = defaultdict(int, s)
-        model.finalize_vocab()
-        model.total_words = long(len(model.vocab))
+            .filter(lambda x: x[1] >= 3)              \
+            .map(lambda x:{x[0]:x[1]}).collect()          
+        freqs = { k: v for d in s for k, v in d.items()} 
+        # model.raw_vocab = defaultdict(int, s)
+        model.build_vocab_from_freq(freqs)
+        model.total_words = long(len(model.wv.vocab))
 
     def saveAsPickleFile(self, path):
         syn0_path = "%s.syn0" % path 
